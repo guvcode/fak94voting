@@ -5,7 +5,7 @@ const client = new MongoClient('mongodb+srv://innoventorshq:y2Hu2U9BVy8fXdL@clus
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
-
+console.log(client);
 async function database(req, res, next) {
   if (!client.isConnected()) await client.connect();
   req.dbClient = client;
