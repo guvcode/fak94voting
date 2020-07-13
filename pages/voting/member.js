@@ -53,7 +53,7 @@ const MemberVoting = ({
     setResults(newResults);
   };
 
-  if (pollInfo && pollInfo.data.)
+  //if (pollInfo && pollInfo.data.)
 
   const hasVotingRights = (member) => {
     if (!member.data.votingRights) return false;
