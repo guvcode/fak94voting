@@ -30,3 +30,6 @@ yarn-error.log*
 .env.production.local
 
 .vercel
+
+# other older files
+/pages/api/old
