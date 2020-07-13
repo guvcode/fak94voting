@@ -218,7 +218,7 @@ const MemberVoting = ({
 };
 
 MemberVoting.getInitialProps = async ({ res, req, query }) => {
-  const token = req.headers.cookie.replace("token=", "");
+  let token = req.headers.cookie
   //console.log("token is - " + token);
   debugger;
 
@@ -228,6 +228,8 @@ MemberVoting.getInitialProps = async ({ res, req, query }) => {
     });
     res.end();
   }
+  token = token.replace("token=", "");
+
   const { origin } = absoluteUrl(req);
   const pollInfo = await fetch(`${origin}/api/pollinfo/${electionYear}`);
   const jsonPollInfo = await pollInfo.json();
