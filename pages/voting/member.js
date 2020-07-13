@@ -219,7 +219,7 @@ const MemberVoting = ({
 
 MemberVoting.getInitialProps = async ({ res, req, query }) => {
   const token = req.headers.cookie.replace("token=", "");
-  console.log("token is - " + token);
+  //console.log("token is - " + token);
   debugger;
 
   if (!token || token == "undefined") {
