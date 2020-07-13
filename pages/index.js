@@ -49,6 +49,7 @@ const Home = ({ serverUrl }) => {
       .then((res) => {
         const { tokenSent, userFound } = res.data;
         if (userFound) {
+          setPageError("");
           setShowTokenForm(tokenSent && userFound);
         } else {
           setPageError("We are unable to verify provided email, please contact the electoral committee");
