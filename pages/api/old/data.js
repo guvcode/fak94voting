@@ -10,7 +10,7 @@ handler.get(async (req, res) => {
     .collection("contestants")
     .find({},{ sort: { positionIndex: -1 } })
     .toArray();
- // console.log(doc);
+  console.log(doc);
   res.json(doc);
 });
 
