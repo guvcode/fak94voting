@@ -1,35 +1,17 @@
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
+import fetch from "isomorphic-fetch";
 import { useRouter } from "next/router";
 import absoluteUrl from "next-absolute-url";
+import useSWR from "swr";
 
 import CandidateGroup from "../../../components/CandidateGroup";
 import CandidateLabel from "../../../components/CandidateLabel";
 import MyVotes from "../../../components/MyVotes";
-import ErrorAlert from "../../../components/ErrorAlert";
-import FullPageErrorAlert from "../../../components/FullPageErrorAlert";
 
-const fetcher = async (...args) => {
-  const res = await fetch(...args);
-  return res.json();
-};
-
-const electionYear = 2020;
-
-const MemberVoting = ({
-  member,
-  contestants,
-  positions,
-  serverUrl,
-  userId,
-  myVotes,
-}) => {
+const Home = ({ contestants, positions, serverUrl, userId, myVotes }) => {
   const [results, setResults] = useState([]);
-  const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState();
-  const [fetchedVotes, setFetchedVotes] = useState(
-    myVotes.data && myVotes.data.selection
-  );
+  const [fetchedVotes, setFetchedVotes] = useState(myVotes.selection);
 
   const candidateClicked = (selection) => {
     const data = { ...results };
@@ -43,70 +25,31 @@ const MemberVoting = ({
     setResults(newResults);
   };
 
-  const hasVotingRights = (member) => {
-    if (!member.data.votingRights) return false;
-
-    const votingRightsCurrentYear = member.data.votingRights.filter(
-      (x) => x.year == electionYear
-    );
-    if (votingRightsCurrentYear.length < 1) return false;
-    if (!votingRightsCurrentYear[0].canVote) return false;
-
-    return true;
-  };
-
   const voteClicked = () => {
     const finalResults = { ...results };
-    // debugger;
     fetch(`${serverUrl}/api/vote`, {
       method: "POST",
       body: JSON.stringify({
-        userId: userId.memberid,
+        userId,
         selection: finalResults,
-        electionYear: electionYear,
-        votedWhen: Date.now(),
+        votedWhen: Date.now,
       }),
       headers: { "Content-Type": "application/json" },
     })
       .then((res) => res.json())
       .then((res) => {
         console.log("Voting successful:", res);
-        setFetchedVotes(finalResults);
+        setFetchedVotes (finalResults);
       })
       .catch((err) => {
         console.error("Voting ERROR:", err);
-        setErrorMessage(err);
-        setShowError(true);
       });
   };
 
   const showVoteButton = (selections) => {
-    return positions.data.length == Object.keys(selections).length;
+    return positions.length == Object.keys(selections).length;
   };
-
-  if (!member.data) {
-    return (
-      <FullPageErrorAlert
-        title={"Something went wrong"}
-        message={
-          "We are unable to get your membership information, please contact the electoral committee"
-        }
-      />
-    );
-  }
-
-  if (fetchedVotes) return <MyVotes votes={fetchedVotes} member={member} />;
-
-  if (!hasVotingRights(member))
-    return (
-      <FullPageErrorAlert
-        title={"Something went wrong"}
-        message={
-          "Your access to vote has not yet been confirmed, please contact the electoral committee!"
-        }
-      />
-    );
-
+  if (fetchedVotes) return  <MyVotes votes={fetchedVotes} />
   return (
     <div>
       <Head>
@@ -123,10 +66,7 @@ const MemberVoting = ({
           <div className="flex flex-row items-center">
             <div className="flex-1">
               <h5 className="font-bold uppercase text-gray-600 mb-3">
-                <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2">
-                  Hello {member.data.firstName} {member.data.lastName}
-                </span>
-                <p>Your selections Will Appear Below</p>
+                Your selection
               </h5>
               <div className="flex flex-wrap mb-4">
                 {Object.keys(results).map((key) => {
@@ -141,18 +81,11 @@ const MemberVoting = ({
               </div>
               {showVoteButton(results) ? (
                 <button
-                  className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 mb-5"
+                  className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4"
                   onClick={() => voteClicked()}
                 >
                   Vote Now!
                 </button>
-              ) : null}
-
-              {showError ? (
-                <ErrorAlert
-                  title={"Something went wrong"}
-                  message={errorMessage}
-                />
               ) : null}
             </div>
           </div>
@@ -160,9 +93,9 @@ const MemberVoting = ({
         <div className="mb-8"></div>
         <div>
           <div>
-            {positions.data.map((position) => {
+            {positions.map((position) => {
               {
-                let selection = contestants.data.filter(function (contestant) {
+                let selection = contestants.filter(function (contestant) {
                   return contestant.position == position;
                 });
                 return (
@@ -183,6 +116,7 @@ const MemberVoting = ({
                 );
               }
             })}
+            ;
           </div>
         </div>
       </div>
@@ -190,29 +124,33 @@ const MemberVoting = ({
   );
 };
 
-MemberVoting.getInitialProps = async ({ req, query }) => {
-  const memberid = { ...query };
+Home.getInitialProps = async ({ req, query }) => {
+  const userId = { ...query };
   const { origin } = absoluteUrl(req);
 
-  const contestants = await fetch(`${origin}/api/contestants/${electionYear}`);
-  const jsonContestants = await contestants.json();
+  const res = await fetch(`${origin}/api/data`);
+  const json = await res.json();
 
-  const resPosition = await fetch(`${origin}/api/positions/${electionYear}`);
+  const resPosition = await fetch(`${origin}/api/positions`);
   const jsonPosition = await resPosition.json();
 
-  const myVotes = await fetch(`${origin}/api/myvote/${memberid.memberid}`);
-  const jsonMyVotes = await myVotes.json();
+  const myVote = await fetch(`${origin}/api/myvote`, {
+    method: "POST",
+    body: JSON.stringify({
+      userId,
+    }),
+    headers: { "Content-Type": "application/json" },
+  });
 
-  const memberInfo = await fetch(`${origin}/api/member/${memberid.memberid}`);
-  const jsonMemberInfo = await memberInfo.json();
+  const jsonMyVote = await myVote.json();
 
   return {
-    member: jsonMemberInfo,
-    contestants: jsonContestants,
+    contestants: json,
     positions: jsonPosition,
     serverUrl: origin,
-    userId: memberid,
-    myVotes: jsonMyVotes,
+    userId: userId,
+    myVotes: jsonMyVote,
   };
 };
-export default MemberVoting;
+
+export default Home;

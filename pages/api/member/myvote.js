@@ -8,10 +8,10 @@ handler.use(middleware);
 
 handler.get(async (req, res) => {
   // console.log(req.query.memberid);
- // debugger;
+  debugger;
   let doc = await req.db
     .collection("votes")
-    .findOne({ userId: req.query.memberid });
+    .findOne({ userId: req.headers.cookie });
 
     const result = { data: doc, error: null };
     res.json(result);

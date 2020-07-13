@@ -1,5 +1,5 @@
 import nextConnect from "next-connect";
-import middleware from "../../middleware/database";
+import middleware from "../../../middleware/database";
 
 const handler = nextConnect();
 
@@ -24,32 +24,33 @@ handler.use(middleware);
 // POST /api/vote
 handler.post(async (req, res) => {
   //console.log(req.body);
-  const { userId, selection, votedWhen } = req.body;
+  debugger;
+  const { userId, selection, votedWhen, electionYear } = req.body;
   //console.log(selection);
 
-  debugger;
+ // debugger;
 
+  if (!userId) throw "Unable to vote due to missing data!";
   let count = await req.db
     .collection("votes")
-    .countDocuments({ userId: userId.userid });
+    .countDocuments({ userId: userId });
 
   if (count > 0) {
     let myVotes = await req.db
       .collection("votes")
-      .findOne({ userId: userId.userid });
+      .findOne({ userId: userId, electionYear: electionYear });
     // res.status(403).send("You have already cast your votes.");
     res
       .status(403)
       .json({ error: true, message: "Vote already cast", votes: myVotes });
     return;
   } else {
-    const votes = await req.db
-      .collection("votes")
-      .insertOne({
-        userId: userId.userid,
-        selection: selection,
-        voteCastAt: votedWhen,
-      });
+    const votes = await req.db.collection("votes").insertOne({
+      userId: userId,
+      selection: selection,
+      voteCastAt: votedWhen,
+      electionYear: electionYear
+    });
 
     res.json(votes);
   }

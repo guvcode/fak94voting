@@ -4,52 +4,57 @@ import fetch from "isomorphic-fetch";
 import { useRouter } from "next/router";
 import absoluteUrl from "next-absolute-url";
 import useSWR from "swr";
+import Cookies from "js-cookie";
+import ErrorAlert from "../components/ErrorAlert";
 
-import CandidateGroup from "../components/CandidateGroup";
-import CandidateLabel from "../components/CandidateLabel";
-import MyVotes from "../components/MyVotes";
+const Home = ({ serverUrl }) => {
+  const [emailAddress, setEmailAddress] = useState("");
+  const [token, setToken] = useState("");
+  const [showTokenForm, setShowTokenForm] = useState(false);
+  const [pageError, setPageError] = useState("");
 
-const Home = ({ contestants, positions, serverUrl, userId, myVotes }) => {
-  const [results, setResults] = useState([]);
-  const [fetchedVotes, setFetchedVotes] = useState(myVotes.selection);
-
-  const candidateClicked = (selection) => {
-    const data = { ...results };
-    data[selection.position] = selection;
-    setResults(data);
-  };
-
-  const closeClicked = (selection) => {
-    const newResults = { ...results };
-    delete newResults[selection.position];
-    setResults(newResults);
-  };
-
-  const voteClicked = () => {
-    const finalResults = { ...results };
-    fetch(`${serverUrl}/api/vote`, {
+  const handleSubmit = async () => {
+    fetch(`${serverUrl}/api/member/tokencheck`, {
       method: "POST",
-      body: JSON.stringify({
-        userId,
-        selection: finalResults,
-        votedWhen: Date.now,
-      }),
+      body: JSON.stringify({ emailAddress, token }),
       headers: { "Content-Type": "application/json" },
     })
       .then((res) => res.json())
       .then((res) => {
-        console.log("Voting successful:", res);
-        setFetchedVotes (finalResults);
+        if (res.error) {
+          setPageError(res.error);
+        } else {
+          const { tokenValid, userFound, userId } = res.data;
+          if (userId) {
+            Cookies.set("token", userId, { expires: 60 });
+            window.location.pathname = `voting/member`;
+          } else
+            setPageError(
+              "An error occured verifying this token, please contact admin!"
+            );
+        }
       })
       .catch((err) => {
-        console.error("Voting ERROR:", err);
+        setPageError(err);
       });
   };
 
-  const showVoteButton = (selections) => {
-    return positions.length == Object.keys(selections).length;
+  const handleNext = async (e) => {
+    fetch(`${serverUrl}/api/member/emailcheck`, {
+      method: "POST",
+      body: JSON.stringify({ emailAddress }),
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        const { tokenSent, userFound } = res.data;
+        setShowTokenForm(tokenSent && userFound);
+      })
+      .catch((err) => {
+        setPageError(err);
+      });
   };
-  if (fetchedVotes) return  <MyVotes votes={fetchedVotes} />
+
   return (
     <div>
       <Head>
@@ -61,62 +66,78 @@ const Home = ({ contestants, positions, serverUrl, userId, myVotes }) => {
         />
       </Head>
 
-      <div className="container mx-auto">
-        <div className="border-b-4 border-orange-500 rounded-lg shadow-lg p-5">
-          <div className="flex flex-row items-center">
-            <div className="flex-1">
-              <h5 className="font-bold uppercase text-gray-600 mb-3">
-                Your selection
-              </h5>
-              <div className="flex flex-wrap mb-4">
-                {Object.keys(results).map((key) => {
-                  return (
-                    <CandidateLabel
-                      closeClicked={closeClicked}
-                      data={results[key]}
-                      key={`lbl${key}`}
-                    />
-                  );
-                })}
+      <div className="container mx-auto ">
+        <div className="flex items-center justify-center h-screen">
+          <div className="w-full max-w-xs">
+            {pageError.length > 0 ? (
+              <ErrorAlert title={"Login Error"} message={pageError} />
+            ) : null}
+            <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+              <div className="mb-4">
+                <h2 className="block text-orange-700 text-lg font-bold mb-12">
+                  FCHS 94 Voting Platform
+                </h2>
+                <hr />
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Registered Email
+                </label>
+                <input
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  id="userEmail"
+                  type="email"
+                  placeholder="Enter your email address"
+                  onChange={(e) => setEmailAddress(e.target.value.trim())}
+                  value={emailAddress}
+                  required
+                  disabled={showTokenForm}
+                />
               </div>
-              {showVoteButton(results) ? (
-                <button
-                  className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4"
-                  onClick={() => voteClicked()}
-                >
-                  Vote Now!
-                </button>
+              {showTokenForm ? (
+                <React.Fragment>
+                  {" "}
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Enter Token
+                  </label>
+                  <input
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="userToken"
+                    type="text"
+                    placeholder="Enter token from Whatsapp"
+                    onChange={(e) => setToken(e.target.value.trim())}
+                    value={token}
+                    required
+                  />
+                </React.Fragment>
               ) : null}
-            </div>
-          </div>
-        </div>
-        <div className="mb-8"></div>
-        <div>
-          <div>
-            {positions.map((position) => {
-              {
-                let selection = contestants.filter(function (contestant) {
-                  return contestant.position == position;
-                });
-                return (
-                  <React.Fragment key={`frg${position}`}>
-                    <h3 className="m-4">Candidates for {position}</h3> <br />
-                    <div
-                      className="flex flex-wrap mb-4"
-                      key={position}
-                      key={`div${position}`}
-                    >
-                      <CandidateGroup
-                        candidates={selection}
-                        candidateClicked={candidateClicked}
-                        key={`grp${position}`}
-                      />
-                    </div>
-                  </React.Fragment>
-                );
-              }
-            })}
-            ;
+              {showTokenForm ? (
+                <div className="flex items-center justify-between">
+                  <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
+                    type="button"
+                    onClick={() => handleSubmit()}
+                  >
+                    Submit
+                  </button>
+
+                  <a
+                    className="text-center block border border-white rounded hover:border-gray-200 text-blue-500 hover:bg-gray-200 py-2 px-4"
+                    href="/"
+                  >
+                    Cancel
+                  </a>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    type="button"
+                    onClick={() => handleNext()}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </form>
           </div>
         </div>
       </div>
@@ -125,31 +146,9 @@ const Home = ({ contestants, positions, serverUrl, userId, myVotes }) => {
 };
 
 Home.getInitialProps = async ({ req, query }) => {
-  const userId = { ...query };
   const { origin } = absoluteUrl(req);
-
-  const res = await fetch(`${origin}/api/data`);
-  const json = await res.json();
-
-  const resPosition = await fetch(`${origin}/api/positions`);
-  const jsonPosition = await resPosition.json();
-
-  const myVote = await fetch(`${origin}/api/myvote`, {
-    method: "POST",
-    body: JSON.stringify({
-      userId,
-    }),
-    headers: { "Content-Type": "application/json" },
-  });
-
-  const jsonMyVote = await myVote.json();
-
   return {
-    contestants: json,
-    positions: jsonPosition,
     serverUrl: origin,
-    userId: userId,
-    myVotes: jsonMyVote,
   };
 };
 
