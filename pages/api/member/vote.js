@@ -1,5 +1,6 @@
 import nextConnect from "next-connect";
 import middleware from "../../../middleware/database";
+import slack from "../../../middleware/logger";
 
 const handler = nextConnect();
 
@@ -24,7 +25,7 @@ handler.use(middleware);
 // POST /api/vote
 handler.post(async (req, res) => {
   //console.log(req.body);
-  debugger;
+ // debugger;
   const { userId, selection, votedWhen, electionYear } = req.body;
   //console.log(selection);
 

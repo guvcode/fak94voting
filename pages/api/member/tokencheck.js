@@ -1,7 +1,6 @@
 import nextConnect from "next-connect";
 import middleware from "../../../middleware/database";
 import slack from "../../../middleware/logger";
-var request = require("request-promise");
 
 const handler = nextConnect();
 
@@ -17,7 +16,7 @@ handler.post(async (req, res) => {
 
     if (!doc) {
       result = {
-        data: { tokenValid: false, userFound: false },
+        data: { tokenValid: false, userFound: true },
         error: "Token not valid for this user, please check your whatsapp for the latest token",
       };
       return res.json(result);

@@ -8,7 +8,7 @@ const handler = nextConnect();
 handler.use(middleware);
 
 handler.post(async (req, res) => {
-  debugger;
+ // debugger;
   let result = {};
   try {
     let doc = await req.db
@@ -22,7 +22,7 @@ handler.post(async (req, res) => {
       var date = new Date();
       var newDate =  date.setHours(date.getHours() + 1)
      // console.log(newDate);
-    // await sendWhatsAppMessage(doc.phoneNumber, msg);
+     //await sendWhatsAppMessage(doc.phoneNumber, msg);
 
       await req.db.collection("members").updateOne(
         { email: req.body.emailAddress },

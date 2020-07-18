@@ -1,11 +1,12 @@
 import Head from "next/head";
 import CandidateShowVotes from "./CandidateShowVotes";
 import Cookies from "js-cookie";
+import ButtomMenu from "./ButtomMenu";
+import {logOut} from "../lib/helper"
 
 const MyVotes = ({ votes, member }) => {
   const handleLogout = async () => {
-    Cookies.remove("token");
-    window.location.pathname = `/`;
+     logOut(member.data.email);
   };
 
   return (
@@ -18,16 +19,16 @@ const MyVotes = ({ votes, member }) => {
           rel="stylesheet"
         />
       </Head>
-      <div className="container mx-auto">
+      <div className="container mx-auto">       
         <div className=" mt-4">
           <div
-            className="bg-teal-100 border-t-4 border-teal-500 rounded-b text-teal-900 px-4 py-3 shadow-md"
+            className="bg-teal-100 border-t-4 border-teal-500 rounded-b text-teal-900 px-4 py-3 shadow-md mb-10"
             role="alert"
           >
             <div className="flex">
               <div className="py-1">
                 <svg
-                  class="fill-current h-6 w-6 text-teal-500 mr-4"
+                  className="fill-current h-6 w-6 text-teal-500 mr-4"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                 >
@@ -50,18 +51,10 @@ const MyVotes = ({ votes, member }) => {
               return (
                 <CandidateShowVotes data={votes[vote]} key={`lbl${vote}`} />
               );
-            })}
-            <div className="text-center mt-4">
-              <button
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
-                type="button"
-                onClick={() => handleLogout()}
-              >
-                Log Out
-              </button>
-            </div>
+            })}            
           </div>
         </div>
+        <ButtomMenu member={member} />
       </div>
     </div>
   );

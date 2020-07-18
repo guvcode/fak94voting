@@ -26,7 +26,8 @@ const Home = ({ serverUrl }) => {
         } else {
           const { tokenValid, userFound, userId } = res.data;
           if (userId) {
-            Cookies.set("token", userId, { expires: 60 });
+            Cookies.set("shcf49-tk", userId, { expires: 0.5 });
+            Cookies.set("shcf49-ac", 'bew', { expires: 0.5 });
             window.location.pathname = `voting/member`;
           } else
             setPageError(

@@ -19,12 +19,15 @@
     "next-connect": "^0.7.2",
     "r2": "^2.0.1",
     "react": "16.13.1",
+    "react-awesome-button": "^6.5.1",
     "react-dom": "16.13.1",
+    "react-switch": "^5.0.1",
     "request": "^2.88.2",
     "request-promise": "^4.2.5",
     "skeleton": "^0.1.2",
     "slack-notify": "^0.1.7",
     "swr": "^0.2.3",
+    "title-case": "^3.0.2",
     "winston-slack-logger": "^1.0.0"
   }
 }
