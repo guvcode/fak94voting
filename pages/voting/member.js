@@ -9,7 +9,7 @@ import CandidateGroup from "../../components/CandidateGroup";
 import CandidateLabel from "../../components/CandidateLabel";
 import MyVotes from "../../components/MyVotes";
 import ErrorAlert from "../../components/ErrorAlert";
-import FullPageErrorAlert from "../../components/FullPageErrorAlert";
+import FullPageErrorAlertWithLogOut from "../../components/FullPageAlertWithLogOut";
 import ButtomMenu from "../../components/ButtomMenu";
 //import useAuth, { ProtectRoute } from "../../contexts/auth";
 
@@ -27,6 +27,8 @@ const MemberVoting = ({
   token,
   myVotes,
   electionYear,
+  pollClosed,
+  pollNotOpen
 }) => {
   const [results, setResults] = useState([]);
   const [showError, setShowError] = useState(false);
@@ -53,50 +55,6 @@ const MemberVoting = ({
     delete newResults[selection.position];
     setResults(newResults);
   };
-
-  if (!pollInfo) {
-    return (
-      <React.Fragment>
-        <FullPageErrorAlert
-          title={"Hey friend, this is embarassing"}
-          message={
-            "We are unable to locate poll close and open time, please contact the electoral committee!"
-          }
-        />
-        <div className="text-center mt-4">
-          <button
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
-            type="button"
-            onClick={() => handleLogout()}
-          >
-            Log Out
-          </button>
-        </div>
-      </React.Fragment>
-    );
-  }
-
-  if (pollInfo.data.pollOpen > Date.now()) {
-    return (
-      <React.Fragment>
-        <FullPageErrorAlert
-          title={"Hey friend, you came too early"}
-          message={
-            "The polls has not yet opened, please come back again at the appointed time!"
-          }
-        />
-        <div className="text-center mt-4">
-          <button
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
-            type="button"
-            onClick={() => handleLogout(member.data.email)}
-          >
-            Log Out
-          </button>
-        </div>
-      </React.Fragment>
-    );
-  }
 
   const hasVotingRights = (member) => {
     if (!member.data.votingRights) return false;
@@ -135,78 +93,59 @@ const MemberVoting = ({
       });
   };
 
-  const handleLogout = async () => {
-    logOut(member.data.email);
-  };
-
   const showVoteButton = (selections) => {
     return positions.data.length == Object.keys(selections).length;
   };
+  
+  if (!pollInfo) {
+    return (
+        <FullPageErrorAlertWithLogOut
+          title={"Hey friend, this is embarassing"}
+          message={"We are unable to locate poll infomation, please contact the electoral committee!"}
+          member={member}
+        />
+    );
+  }
 
   if (!member) {
     //&& !member.data
     return (
-      <React.Fragment>
-        <FullPageErrorAlert
+        <FullPageErrorAlertWithLogOut
           title={"Hey friend, we need to fix this"}
-          message={
-            "We are unable to get your membership information, please contact the electoral committee"
-          }
+          message={"We are unable to get your information, please contact the electoral committee"}
+          member={member}
         />
-        <div className="text-center mt-4">
-          <button
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
-            type="button"
-            onClick={() => handleLogout()}
-          >
-            Log Out
-          </button>
-        </div>
-      </React.Fragment>
     );
   }
 
   if (fetchedVotes) return <MyVotes votes={fetchedVotes} member={member} />;
 
   if (!hasVotingRights(member))
-    return (
-      <React.Fragment>
-        <FullPageErrorAlert
+    return (      
+        <FullPageErrorAlertWithLogOut
           title={"Hey friend, we need to fix this"}
-          message={
-            "Your access to vote has not yet been confirmed, please contact the electoral committee!"
-          }
-        />
-        <div className="text-center mt-4">
-          <button
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
-            type="button"
-            onClick={() => handleLogout()}
-          >
-            Log Out
-          </button>
-        </div>
-      </React.Fragment>
+          message={"Your access to vote has not yet been confirmed, please contact the electoral committee!"}
+          member={member}
+        />        
     );
-  if (pollInfo.data.pollClose < Date.now()) {
+
+    if (pollNotOpen) {
+      return (        
+          <FullPageErrorAlertWithLogOut
+            title={"Hey friend, you came too early"}
+            message={"The election is not yet open, please return at the appointed time!"}
+            member={member}
+          />          
+      );
+    }
+
+  if (pollClosed) {
     return (
-      <React.Fragment>
-        <FullPageErrorAlert
-          title={"Hey friend, you came too early"}
-          message={
-            "The polls has not yet opened, please come back again at the appointed time!"
-          }
+        <FullPageErrorAlertWithLogOut
+          title={"Hey friend, you came too late"}
+          message={"The election exercise is now over!"}
+          member={member}
         />
-        <div className="text-center mt-4">
-          <button
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
-            type="button"
-            onClick={() => handleLogout()}
-          >
-            Log Out
-          </button>
-        </div>
-      </React.Fragment>
     );
   }
 
@@ -328,6 +267,9 @@ MemberVoting.getInitialProps = async ({ res, req, query }) => {
   });
   const jsonMemberInfo = await memberInfo.json();
 
+  const pollNotOpen =  Date.now() < parseInt(jsonPollInfo.data.pollOpen * 1000);
+  const pollClosed  = Date.now() > parseInt(jsonPollInfo.data.pollCloses * 1000);
+  
   //debugger;
   return {
     pollInfo: jsonPollInfo,
@@ -338,6 +280,8 @@ MemberVoting.getInitialProps = async ({ res, req, query }) => {
     token: token,
     myVotes: jsonMyVotes,
     electionYear: electionYear,
+    pollNotOpen,
+    pollClosed
   };
 };
 export default MemberVoting;

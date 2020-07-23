@@ -12,6 +12,12 @@ const ButtomMenu = ({ member }) => {
         </p>
         <div className="w-full block lg:flex lg:items-stretch lg:w-auto ">
           <div className="text-sm lg:flex-grow lg:float-right">
+          <a
+                href="/voting/member"
+                className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-yellow-500 hover:bg-gray-700 mt-4 mr-4 lg:mt-0"
+              >
+                Voting
+              </a>
             {member.data.role && member.data.role.includes("Admin") ? (
               <a
                 href="/admin/electoralcommittee"

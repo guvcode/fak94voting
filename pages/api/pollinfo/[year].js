@@ -10,10 +10,8 @@ handler.use(middleware);
 handler.get(async (req, res) => {
   let doc =await req.db
   .collection("pollInfo")
-  .find({electionYear: req.query.year})
-  .toArray();
+  .findOne({electionYear: req.query.year});
 
-  
   const result = { data: doc, error: null };
   res.json(result);
 });
