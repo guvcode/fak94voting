@@ -40,7 +40,7 @@ handler.post(async (req, res) => {
 
     await req.db.collection("auditlog").insertOne({
       actionBy: req.body.emailAddress,
-      action: "user login",
+      action: "user login attempt/tokencheck",
       newValues: req.body.userIp ,
       votingYear: "",
       accountUpdated: "N/A",
@@ -57,7 +57,7 @@ handler.post(async (req, res) => {
     };
     slack.send({
       channel: "#fak94Errors",
-      text: `email : ${req.body.emailAddress} \n  ${exception.stack}`,
+      text: `email : ${req.body.emailAddress} \n user IP : ${req.body.emailAddress} \n  ${exception.stack}`,
     });
     return res.json(result);
   }
