@@ -152,7 +152,9 @@ const Home = ({ serverUrl }) => {
   );
 };
 
-Home.getInitialProps = async ({ req, query }) => {
+Home.getInitialProps = async ({ req,  query }) => {
+  debugger;
+  console.log(req.headers['x-forwarded-for'] || req.connection.remoteAddress)
   const { origin } = absoluteUrl(req);
   return {
     serverUrl: origin,
