@@ -1,5 +1,6 @@
 import Switch from "react-switch";
 import React, { useState, useEffect, useContext } from "react";
+import { addBasePath } from "next/dist/next-server/lib/router/router";
 
 const VotingMemberCard = ({ data, admin, serverUrl, electionYear }) => {
   const [canVote, setCanVote] = useState(false);
@@ -70,7 +71,7 @@ const VotingMemberCard = ({ data, admin, serverUrl, electionYear }) => {
               checked={canVote}
               className="react-switch"
               height={24}
-              disabled={admin.data._id == data._id}
+              disabled={admin.data._id == data._id || data.SpecialStatus}
             />
           </label>
           {errorMessage.length > 0 ? (
