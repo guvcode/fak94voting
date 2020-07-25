@@ -43,7 +43,7 @@ handler.post(async (req, res) => {
     // res.status(403).send("You have already cast your votes.");
     res
       .status(403)
-      .json({ error: true, message: "Vote already cast", votes: myVotes });
+      .json({ error: true, message: "You have voted already", votes: myVotes });
     return;
   } else {
     const votes = await req.db.collection("votes").insertOne({
