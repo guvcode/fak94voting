@@ -91,7 +91,9 @@ const CommitteeMemberCard = ({ data, admin, serverUrl }) => {
             />
           </label>
 
-          {errorMessage.length > 0 ? <p className="text-red-700 font-bold">* Update failed</p> : null}
+          {errorMessage.length > 0 ? (
+            <p className="text-red-700 font-bold">* Update failed</p>
+          ) : null}
         </div>
       </div>
     </React.Fragment>
