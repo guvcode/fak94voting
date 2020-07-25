@@ -6,7 +6,7 @@ import absoluteUrl from "next-absolute-url";
 import { AwesomeButtonProgress } from "react-awesome-button";
 import ErrorAlert from "../components/ErrorAlert";
 
-const MobileIndexTokenCheck = ({ serverUrl }) => {
+const MobileIndexTokenCheck = ({ serverUrl, userIp }) => {
   const [token, setToken] = useState("");
   const [pageError, setPageError] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
@@ -118,10 +118,12 @@ const MobileIndexTokenCheck = ({ serverUrl }) => {
 };
 
 MobileIndexTokenCheck.getInitialProps = async ({ req, query }) => {
+  const ip =req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   const { origin } = absoluteUrl(req);
 
   return {
     serverUrl: origin,
+    userIp:ip
   };
 };
 

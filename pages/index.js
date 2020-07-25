@@ -7,7 +7,7 @@ import useSWR from "swr";
 import Cookies from "js-cookie";
 import ErrorAlert from "../components/ErrorAlert";
 
-const Home = ({ serverUrl }) => {
+const Home = ({ serverUrl , userIp}) => {
   const [emailAddress, setEmailAddress] = useState("");
   const [token, setToken] = useState("");
   const [showTokenForm, setShowTokenForm] = useState(false);
@@ -16,7 +16,7 @@ const Home = ({ serverUrl }) => {
   const handleSubmit = async () => {
     fetch(`${serverUrl}/api/member/tokencheck`, {
       method: "POST",
-      body: JSON.stringify({ emailAddress, token }),
+      body: JSON.stringify({ emailAddress, token, userIp }),
       headers: { "Content-Type": "application/json" },
     })
       .then((res) => res.json())
@@ -153,11 +153,11 @@ const Home = ({ serverUrl }) => {
 };
 
 Home.getInitialProps = async ({ req,  query }) => {
-  debugger;
-  console.log(req.headers['x-forwarded-for'] || req.connection.remoteAddress)
+  const ip =req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   const { origin } = absoluteUrl(req);
   return {
     serverUrl: origin,
+    userIp: ip
   };
 };
 

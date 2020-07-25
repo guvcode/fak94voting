@@ -48,6 +48,7 @@ const Mobileindex = ({ userFound, emailUsed }) => {
 };
 
 Mobileindex.getInitialProps = async ({ req, query }) => {
+  
   const email = query.emailaddress;
   const { origin } = absoluteUrl(req);
 
@@ -61,6 +62,7 @@ Mobileindex.getInitialProps = async ({ req, query }) => {
   return {
     userFound: emailCheckInfoJson.data.userFound,
     emailUsed: email,
+    
   };
 };
 

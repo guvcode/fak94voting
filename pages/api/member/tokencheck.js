@@ -38,6 +38,16 @@ handler.post(async (req, res) => {
       error: null,
     };
 
+    await req.db.collection("auditlog").insertOne({
+      actionBy: req.body.emailAddress,
+      action: "user login",
+      newValues: req.body.userIp ,
+      votingYear: "",
+      accountUpdated: "N/A",
+      actionTime: new Date(),
+    });
+
+
     return res.json(result);
   } catch (exception) {
     //debugger;
