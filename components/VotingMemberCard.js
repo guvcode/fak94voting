@@ -71,7 +71,7 @@ const VotingMemberCard = ({ data, admin, serverUrl, electionYear }) => {
               checked={canVote}
               className="react-switch"
               height={24}
-              disabled={admin.data._id == data._id || data.SpecialStatus}
+              disabled={admin.data._id == data._id || data.specialStatus}
             />
           </label>
           {errorMessage.length > 0 ? (

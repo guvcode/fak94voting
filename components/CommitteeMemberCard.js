@@ -77,7 +77,7 @@ const CommitteeMemberCard = ({ data, admin, serverUrl }) => {
               checked={isElectoral}
               className="react-switch"
               height={24}
-              disabled={admin.data._id == data._id || data.SpecialStatus}
+              disabled={admin.data._id == data._id || data.specialStatus}
             />
           </label>
           <label>
@@ -87,6 +87,7 @@ const CommitteeMemberCard = ({ data, admin, serverUrl }) => {
               checked={isAdmin}
               className="react-switch"
               height={24}
+              disabled={data.specialStatus}
             />
           </label>
 
