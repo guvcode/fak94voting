@@ -19,7 +19,8 @@ const MyVotes = ({ votes, member }) => {
           rel="stylesheet"
         />
       </Head>
-      <div className="container mx-auto">       
+      <div className="container mx-auto"> 
+      <ButtomMenu member={member} />      
         <div className=" mt-4">
           <div
             className="bg-teal-100 border-t-4 border-teal-500 rounded-b text-teal-900 px-4 py-3 shadow-md mb-10"
@@ -54,7 +55,6 @@ const MyVotes = ({ votes, member }) => {
             })}            
           </div>
         </div>
-        <ButtomMenu member={member} />
       </div>
     </div>
   );

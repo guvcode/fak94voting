@@ -64,6 +64,7 @@ const MemberVoting = ({
     );
     if (votingRightsCurrentYear.length < 1) return false;
     if (!votingRightsCurrentYear[0].canVote) return false;
+    if (votingRightsCurrentYear[0].canVote =="false") return false;
 
     return true;
   };

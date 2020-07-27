@@ -1,0 +1,6 @@
+1. After each upload flagged deceased members to have special status or add the status fromn the file upload
+change the poll strat and end information
+clear the electoral commitee role for myself and leave aonly admin
+clear the audit logs as well
+setup contesttants using file upload as well
+archive previous votes after each voting excercise is done

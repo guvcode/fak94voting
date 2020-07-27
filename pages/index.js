@@ -7,7 +7,7 @@ import useSWR from "swr";
 import Cookies from "js-cookie";
 import ErrorAlert from "../components/ErrorAlert";
 
-const Home = ({ serverUrl , userIp}) => {
+const Home = ({ serverUrl, userIp }) => {
   const [emailAddress, setEmailAddress] = useState("");
   const [token, setToken] = useState("");
   const [showTokenForm, setShowTokenForm] = useState(false);
@@ -27,7 +27,7 @@ const Home = ({ serverUrl , userIp}) => {
           const { tokenValid, userFound, userId } = res.data;
           if (userId) {
             Cookies.set("shcf49-tk", userId, { expires: 0.5 });
-            Cookies.set("shcf49-ac", 'bew', { expires: 0.5 });
+            Cookies.set("shcf49-ac", "bew", { expires: 0.5 });
             window.location.pathname = `voting/member`;
           } else
             setPageError(
@@ -53,9 +53,10 @@ const Home = ({ serverUrl , userIp}) => {
           setPageError("");
           setShowTokenForm(tokenSent && userFound);
         } else {
-          setPageError("We are unable to verify provided email, please contact the electoral committee");
+          setPageError(
+            "We are unable to verify provided email, please contact the electoral committee"
+          );
         }
-       
       })
       .catch((err) => {
         setPageError(err);
@@ -145,6 +146,13 @@ const Home = ({ serverUrl , userIp}) => {
                 </div>
               )}
             </form>
+            <a
+              className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-12 rounded focus:outline-none focus:shadow-outline mt-5"
+              type="button"
+              href="#"
+            >
+              Need help? Click Here
+            </a>
           </div>
         </div>
       </div>
@@ -152,12 +160,12 @@ const Home = ({ serverUrl , userIp}) => {
   );
 };
 
-Home.getInitialProps = async ({ req,  query }) => {
-  const ip =req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+Home.getInitialProps = async ({ req, query }) => {
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
   const { origin } = absoluteUrl(req);
   return {
     serverUrl: origin,
-    userIp: ip
+    userIp: ip,
   };
 };
 
