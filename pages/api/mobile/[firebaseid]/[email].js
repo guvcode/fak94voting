@@ -25,7 +25,9 @@ handler.get(async (req, res) => {
       result = { status: true, data: doc, error: null };
     }
 
-    if (doc && doc.firebaseId && req.query.firebaseId != doc.firebaseId) {
+    if (doc && doc.firebaseId && req.query.firebaseid != doc.firebaseId) {
+      console.log(req.query.firebaseid);
+      console.log(doc.firebaseId);
       result = {
         status: false,
         data: null,
