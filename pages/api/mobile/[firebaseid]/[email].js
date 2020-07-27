@@ -15,7 +15,7 @@ handler.get(async (req, res) => {
 
     if (doc && !doc.firebaseId) {
       await req.db.collection("members").updateOne(
-        { email: Objecreq.query.email },
+        { email: req.query.email },
         {
           $set: {
             firebaseId: req.query.firebaseid,
@@ -39,7 +39,7 @@ handler.get(async (req, res) => {
     //debugger;
     slack.send({
       channel: "#fak94Errors",
-      text: `email : ${req.body.email} \n firebaseid : ${req.body.fiebaseid} \n  ${exception.stack}`,
+      text: `email : ${req.query.email} \n firebaseid : ${req.query.firebaseid} \n  ${exception.stack}`,
     });
     res.json({ status: false, data: null, error: "An Error occurred (X200)" });
   }
