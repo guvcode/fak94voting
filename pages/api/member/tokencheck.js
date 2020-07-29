@@ -12,7 +12,7 @@ handler.post(async (req, res) => {
   try {
     let doc = await req.db
       .collection("members")
-      .findOne({ email: req.body.emailAddress, accessCode: req.body.token });
+      .findOne({ email: req.body.emailAddress, accessCode: req.body.token.toUpperCase() });
 
     if (!doc) {
       result = {

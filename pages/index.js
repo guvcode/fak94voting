@@ -146,13 +146,7 @@ const Home = ({ serverUrl, userIp }) => {
                 </div>
               )}
             </form>
-            <a
-              className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-12 rounded focus:outline-none focus:shadow-outline mt-5"
-              type="button"
-              href="#"
-            >
-              Need help? Click Here
-            </a>
+           
           </div>
         </div>
       </div>
