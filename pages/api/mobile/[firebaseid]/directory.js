@@ -15,7 +15,15 @@ handler.get(async (req, res) => {
       .findOne({ firebaseId: req.query.firebaseid });
 
     if (doc) {
-      members = await req.db.collection("members").find({}).toArray();
+      members = await req.db
+        .collection("members")
+        .find(
+          {},
+          {
+            sort: { lastName: -1 },
+          }
+        )
+        .toArray();
       result = { status: true, data: members, error: null };
     }
 
