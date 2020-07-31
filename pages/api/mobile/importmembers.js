@@ -16,6 +16,9 @@ handler.get(async (req, res) => {
       .find(
         {},
         {
+          fields: { lastName: 1, firstName: 1, otherNames: 1, phoneNumber: 1 },
+        },
+        {
           sort: { lastName: 1 },
         }
       )
