@@ -16,7 +16,20 @@ handler.get(async (req, res) => {
       .find(
         {},
         {
-          fields: { votingRights: 0 },
+          fields: {
+            email: 1,
+            firstName: 1,
+            lastName: 1,
+            otherNames: 1,
+            phoneNumber: 1,
+            linkedIn: 1,
+            facebook: 1,
+            twitter: 1,
+            instagram: 1,
+            website: 1,
+            firebaseId: 1,
+            role: 1
+          },
         },
         {
           sort: { lastName: 1, firstName: 1, otherNames: 1 },
