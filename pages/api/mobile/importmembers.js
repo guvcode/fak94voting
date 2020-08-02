@@ -16,7 +16,10 @@ handler.get(async (req, res) => {
       .find(
         {},
         {
-          sort: { lastName: 1 },
+          fields: { votingRights: 0 },
+        },
+        {
+          sort: { lastName: 1, firstName: 1, otherNames: 1 },
         }
       )
       .toArray();
