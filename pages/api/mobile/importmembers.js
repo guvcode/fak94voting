@@ -28,13 +28,11 @@ handler.get(async (req, res) => {
             instagram: 1,
             website: 1,
             firebaseId: 1,
-            role: 1
+            role: 1,
           },
-        },
-        {
-          sort: { lastName: 1  },
         }
       )
+      .sort({ lastName: 1, firstName: 1 })
       .toArray();
     result = { status: true, data: members, error: null };
 
