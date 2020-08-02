@@ -35,8 +35,8 @@ handler.get(async (req, res) => {
           sort: { lastName: 1  },
         }
       )
-      .toArray();
-    result = { status: true, data: members, error: null };
+      ;
+    result = { status: true, data: members.toArray(), error: null };
 
     res.json(result);
   } catch (exception) {
