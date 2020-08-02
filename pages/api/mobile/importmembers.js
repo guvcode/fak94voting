@@ -32,7 +32,7 @@ handler.get(async (req, res) => {
           },
         },
         {
-          sort: { lastName: 1, firstName: 1, otherNames: 1 },
+          sort: { lastName: 1  },
         }
       )
       .toArray();
