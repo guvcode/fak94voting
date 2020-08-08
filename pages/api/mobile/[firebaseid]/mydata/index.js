@@ -14,7 +14,7 @@ handler.get(async (req, res) => {
       .collection("members")
       .findOne({ firebaseId: req.query.firebaseid });
 
-    result = { status: true, data: docs, error: null };
+    result = { status: true, data: doc, error: null };
     res.json(result);
   } catch (exception) {
     //debugger;
