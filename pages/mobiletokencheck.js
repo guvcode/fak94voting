@@ -118,12 +118,12 @@ const MobileIndexTokenCheck = ({ serverUrl, userIp }) => {
 };
 
 MobileIndexTokenCheck.getInitialProps = async ({ req, query }) => {
-  const ip =req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const ip = ""; //req.headers["x-forwarded-for"] || req.connection.remoteAddress;
   const { origin } = absoluteUrl(req);
 
   return {
     serverUrl: origin,
-    userIp:ip
+    userIp: ip,
   };
 };
 
