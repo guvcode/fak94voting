@@ -9,16 +9,14 @@ handler.use(middleware);
 handler.get(async (req, res) => {
   try {
     let result = { status: false, data: null, error: "Not found (X560)" };
-    let weblinks = {};
+    let links = {};
     let doc = await req.db
       .collection("members")
       .findOne({ firebaseId: req.query.firebaseid });
 
     if (doc) {
-        weblinks = await req.db
-        .collection("weblinks")
-        .find();
-      result = { status: true, data: weblinks, error: null };
+      links = await req.db.collection("weblinks").find({}).toArray();
+      result = { status: true, data: links, error: null };
     }
 
     res.json(result);
