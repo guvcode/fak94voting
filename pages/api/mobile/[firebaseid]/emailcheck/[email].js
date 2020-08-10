@@ -13,6 +13,7 @@ handler.get(async (req, res) => {
       .collection("members")
       .findOne({ email: req.query.email });
 
+    console.log(doc);
     if (doc && !doc.firebaseId) {
       await req.db.collection("members").updateOne(
         { email: req.query.email },
@@ -36,6 +37,11 @@ handler.get(async (req, res) => {
     } else {
       result = { status: true, data: doc, error: null };
     }
+
+    if (!doc) {
+       result = { status: false, data: null, error: "Not found (X060)" };
+    }
+    
     res.json(result);
   } catch (exception) {
     //debugger;
