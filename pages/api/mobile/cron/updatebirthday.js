@@ -1,7 +1,7 @@
 import nextConnect from "next-connect";
 import { ObjectId } from "mongodb";
-import middleware from "../../../middleware/database";
-import slack from "../../../middleware/logger";
+import middleware from "../../../../middleware/database";
+import slack from "../../../../middleware/logger";
 import Airtable from "airtable";
 
 var base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
