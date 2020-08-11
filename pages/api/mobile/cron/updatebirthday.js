@@ -22,19 +22,15 @@ handler.get(async (req, res) => {
 
     members = await req.db
       .collection("members")
-      .find(
-        { birthMonth: currentMonth, birthDay: { $gte: currentDay } },
-        {
-          fields: {
-            firstName: 1,
-            lastName: 1,
-            otherNames: 1,
-            birthDay: 1,
-            birthMonth: 1,
-            photoURL: 1,
-          },
-        }
-      )
+      .find({ birthMonth: currentMonth, birthDay: { $gte: currentDay } })
+      .project({
+        firstName: 1,
+        lastName: 1,
+        otherNames: 1,
+        birthDay: 1,
+        birthMonth: 1,
+        photoURL: 1,
+      })
       .sort({ birthDay: -1 })
       .toArray();
 
