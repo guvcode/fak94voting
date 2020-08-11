@@ -7,7 +7,7 @@ handler.use(middleware);
 handler.post(async (req, res) => {
   //debugger;
   let result = {};
-  //console.log(req);
+  console.log(req.body);
   try {
     await req.db.collection("members").updateOne(
       { firebaseId: req.query.firebaseid },
