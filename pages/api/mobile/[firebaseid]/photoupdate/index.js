@@ -7,7 +7,7 @@ handler.use(middleware);
 handler.post(async (req, res) => {
   //debugger;
   let result = {};
-  console.log(req.body.photoURL);
+  console.log(req);
   try {
     await req.db.collection("members").updateOne(
       { firebaseId: req.query.firebaseid },
