@@ -4,11 +4,10 @@ import slack from "../../../../../middleware/logger";
 
 const handler = nextConnect();
 handler.use(middleware);
-
 handler.post(async (req, res) => {
   //debugger;
   let result = {};
-  console.log( req.body)
+  console.log(req.body.photoURL);
   try {
     await req.db.collection("members").updateOne(
       { firebaseId: req.query.firebaseid },
