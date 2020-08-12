@@ -23,6 +23,7 @@ handler.post(async (req, res) => {
           twitter: req.body.twitter,
           instagram: req.body.instagram,
           linkedIn: req.body.linkedIn,
+          profession:  req.body.profession,
         },
       }
     );
