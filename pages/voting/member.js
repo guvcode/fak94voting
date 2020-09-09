@@ -3,7 +3,7 @@ import Head from "next/head";
 import Router, { useRouter } from "next/router";
 import absoluteUrl from "next-absolute-url";
 import Cookies from "js-cookie";
-import {logOut} from "../../lib/helper"
+import { logOut } from "../../lib/helper";
 
 import CandidateGroup from "../../components/CandidateGroup";
 import CandidateLabel from "../../components/CandidateLabel";
@@ -28,7 +28,7 @@ const MemberVoting = ({
   myVotes,
   electionYear,
   pollClosed,
-  pollNotOpen
+  pollNotOpen,
 }) => {
   const [results, setResults] = useState([]);
   const [showError, setShowError] = useState(false);
@@ -47,13 +47,16 @@ const MemberVoting = ({
   const candidateClicked = (selection) => {
     const data = { ...results };
     data[selection.position] = selection;
-    setResults(data);
+    setResults (results => [...results, selection])
+    //setResults(data);
   };
 
   const closeClicked = (selection) => {
     const newResults = { ...results };
     delete newResults[selection.position];
-    setResults(newResults);
+    //setResults(newResults);
+    let val = selection.position;
+    setResults (results.filter((e)=>(e.position !== val)))
   };
 
   const hasVotingRights = (member) => {
@@ -64,7 +67,7 @@ const MemberVoting = ({
     );
     if (votingRightsCurrentYear.length < 1) return false;
     if (!votingRightsCurrentYear[0].canVote) return false;
-    if (votingRightsCurrentYear[0].canVote =="false") return false;
+    if (votingRightsCurrentYear[0].canVote == "false") return false;
 
     return true;
   };
@@ -97,56 +100,64 @@ const MemberVoting = ({
   const showVoteButton = (selections) => {
     return positions.data.length == Object.keys(selections).length;
   };
-  
+
   if (!pollInfo) {
     return (
-        <FullPageErrorAlertWithLogOut
-          title={"Hey friend, this is embarassing"}
-          message={"We are unable to locate poll infomation, please contact the electoral committee!"}
-          member={member}
-        />
+      <FullPageErrorAlertWithLogOut
+        title={"Hey friend, this is embarassing"}
+        message={
+          "We are unable to locate poll infomation, please contact the electoral committee!"
+        }
+        member={member}
+      />
     );
   }
 
   if (!member) {
     //&& !member.data
     return (
-        <FullPageErrorAlertWithLogOut
-          title={"Hey friend, we need to fix this"}
-          message={"We are unable to get your information, please contact the electoral committee"}
-          member={member}
-        />
+      <FullPageErrorAlertWithLogOut
+        title={"Hey friend, we need to fix this"}
+        message={
+          "We are unable to get your information, please contact the electoral committee"
+        }
+        member={member}
+      />
     );
   }
 
   if (fetchedVotes) return <MyVotes votes={fetchedVotes} member={member} />;
 
   if (!hasVotingRights(member))
-    return (      
-        <FullPageErrorAlertWithLogOut
-          title={"Hey friend, we need to fix this"}
-          message={"Your access to vote has not yet been confirmed, please contact the electoral committee!"}
-          member={member}
-        />        
+    return (
+      <FullPageErrorAlertWithLogOut
+        title={"Hey friend, we need to fix this"}
+        message={
+          "Your access to vote has not yet been confirmed, please contact the electoral committee!"
+        }
+        member={member}
+      />
     );
 
-    if (pollNotOpen) {
-      return (        
-          <FullPageErrorAlertWithLogOut
-            title={"Hey friend, you came too early"}
-            message={"The election is not yet open, please return at the appointed time!"}
-            member={member}
-          />          
-      );
-    }
+  if (pollNotOpen) {
+    return (
+      <FullPageErrorAlertWithLogOut
+        title={"Hey friend, you came too early"}
+        message={
+          "The election is not yet open, please return at the appointed time!"
+        }
+        member={member}
+      />
+    );
+  }
 
   if (pollClosed) {
     return (
-        <FullPageErrorAlertWithLogOut
-          title={"Hey friend, you came too late"}
-          message={"The election exercise is now over!"}
-          member={member}
-        />
+      <FullPageErrorAlertWithLogOut
+        title={"Hey friend, you came too late"}
+        message={"The election exercise is now over!"}
+        member={member}
+      />
     );
   }
 
@@ -206,22 +217,18 @@ const MemberVoting = ({
                 let selection = contestants.data.filter(function (contestant) {
                   return contestant.position == position;
                 });
-                return (
-                  <React.Fragment key={`frg${position}`}>
-                    <h3 className="m-4">Candidates for {position}</h3> <br />
-                    <div
-                      className="flex flex-wrap mb-4"
-                      key={position}
-                      key={`div${position}`}
-                    >
-                      <CandidateGroup
-                        candidates={selection}
-                        candidateClicked={candidateClicked}
-                        key={`grp${position}`}
-                      />
-                    </div>
-                  </React.Fragment>
-                );
+
+                if (results.some((e) => e.position === position)) {
+                  return null;
+                } else {
+                  return (
+                    <ContestantBlock
+                      position={position}
+                      selection={selection}
+                      candidateClicked={candidateClicked}
+                    />
+                  );
+                }
               }
             })}
           </div>
@@ -268,9 +275,9 @@ MemberVoting.getInitialProps = async ({ res, req, query }) => {
   });
   const jsonMemberInfo = await memberInfo.json();
 
-  const pollNotOpen =  Date.now() < parseInt(jsonPollInfo.data.pollOpen * 1000);
-  const pollClosed  = Date.now() > parseInt(jsonPollInfo.data.pollCloses * 1000);
-  
+  const pollNotOpen = Date.now() < parseInt(jsonPollInfo.data.pollOpen * 1000);
+  const pollClosed = Date.now() > parseInt(jsonPollInfo.data.pollCloses * 1000);
+
   //debugger;
   return {
     pollInfo: jsonPollInfo,
@@ -282,7 +289,29 @@ MemberVoting.getInitialProps = async ({ res, req, query }) => {
     myVotes: jsonMyVotes,
     electionYear: electionYear,
     pollNotOpen,
-    pollClosed
+    pollClosed,
   };
 };
 export default MemberVoting;
+
+const ContestantBlock = ({ position, selection, candidateClicked }) => {
+  return (
+    <React.Fragment key={`frgblk${position}`}>
+      <h3 className="m-4">
+        <strong>{position}</strong>
+      </h3>{" "}
+      <br />
+      <div
+        className="flex flex-wrap mb-4"
+        key={position}
+        key={`divblk${position}`}
+      >
+        <CandidateGroup
+          candidates={selection}
+          candidateClicked={candidateClicked}
+          key={`grpblk${position}`}
+        />
+      </div>
+    </React.Fragment>
+  );
+};

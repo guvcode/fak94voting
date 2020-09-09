@@ -18,7 +18,7 @@ handler.get(async (req, res) => {
       if (err) {
         res.json({ data: {}, error: err });
       } else {       
-        res.json( { data: result, error: null });
+        res.json( { data: result.sort(), error: null });
       }
     });
 });
