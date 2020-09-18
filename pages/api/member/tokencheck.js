@@ -7,7 +7,7 @@ const handler = nextConnect();
 handler.use(middleware);
 
 handler.post(async (req, res) => {
-  debugger;
+ // debugger;
   let result = {};
   try {
     let doc = await req.db
@@ -37,6 +37,17 @@ handler.post(async (req, res) => {
       data: { tokenValid: true, userFound: true , userId: doc._id.toString()},
       error: null,
     };
+
+
+    //expire token immediately it is used
+    await req.db.collection("members").updateOne(
+      { email: req.body.emailAddress },
+      {
+        $set: {
+          accessCodeExpiry: Date.now(),
+        },
+      }
+    );
 
     await req.db.collection("auditlog").insertOne({
       actionBy: req.body.emailAddress,

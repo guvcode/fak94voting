@@ -7,7 +7,7 @@ const handler = nextConnect();
 handler.use(middleware);
 
 handler.post(async (req, res) => {
-  debugger;
+ // debugger;
   let result = {};
   try {
     let doc = await req.db

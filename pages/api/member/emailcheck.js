@@ -1,38 +1,41 @@
 import nextConnect from "next-connect";
 import middleware from "../../../middleware/database";
 import slack from "../../../middleware/logger";
-var request = require('request-promise');
+var request = require("request-promise");
 
 const handler = nextConnect();
 
 handler.use(middleware);
 
 handler.post(async (req, res) => {
- // debugger;
+  //debugger;
   let result = {};
+  let getNewToken = false;
   try {
     let doc = await req.db
       .collection("members")
       .findOne({ email: req.body.emailAddress });
 
     if (doc) {
-      const newToken = generateOTP();
-      console.log(newToken);
-      const msg = `Hello ${doc.firstName}, please use ${newToken} as your Voters access code, please keep this safe and do not share with anyone `;
-      var date = new Date();
-      var newDate =  date.setHours(date.getHours() + 1)
-     // console.log(newDate);
-     await sendWhatsAppMessage(doc.phoneNumber, msg);
+      if (shouldGenerateToken(doc)) {
+        const newToken = generateOTP();
+        console.log(newToken);
+        const msg = `Hello ${doc.firstName}, please use ${newToken} as your Voters access code, this token will expire once it is used or in 1 hr, please keep the token safe and do not share with anyone `;
+        var date = new Date();
+        var newDate = date.setHours(date.getHours() + 1);
+        console.log(newDate);
+        await sendWhatsAppMessage(doc.phoneNumber, msg);
 
-      await req.db.collection("members").updateOne(
-        { email: req.body.emailAddress },
-        {
-          $set: {
-            accessCode: newToken,
-            accessCodeExpiry: newDate,
-          },
-        }
-      );
+        await req.db.collection("members").updateOne(
+          { email: req.body.emailAddress },
+          {
+            $set: {
+              accessCode: newToken,
+              accessCodeExpiry: newDate,
+            },
+          }
+        );
+      }
 
       result = {
         data: { tokenSent: true, userFound: true },
@@ -48,10 +51,13 @@ handler.post(async (req, res) => {
     res.json(result);
   } catch (exception) {
     //debugger;
-    const result = { data: {}, error: "An error occured on the server, please contact the admin!" };
+    const result = {
+      data: {},
+      error: "An error occured on the server, please contact the admin!",
+    };
     slack.send({
-      channel: '#fak94Errors',     
-      text: `email : ${req.body.emailAddress} \n  ${exception.stack}`,     
+      channel: "#fak94Errors",
+      text: `email : ${req.body.emailAddress} \n  ${exception.stack}`,
     });
     res.json(result);
   }
@@ -73,21 +79,26 @@ function generateOTP() {
   return OTP;
 }
 
+function shouldGenerateToken(document) {
+  if (!document.accessCode) return true;
+  if (document.accessCodeExpiry &&  Date.now() > document.accessCodeExpiry)
+    return true;
+  return false;
+}
 async function sendWhatsAppMessage(phoneNo, msg) {
   var options = {
     method: "POST",
-     uri: "https://api.wassenger.com/v1/messages",
+    uri: "https://api.wassenger.com/v1/messages",
     headers: {
       "content-type": "application/json",
       token:
         "ecd3a64dbf5b90cf999ebda707deebd017ad73703144637905da06991a7c0994d2d88e6ffd7581b5",
     },
-    body: { phone: phoneNo, message: msg , priority: "normal",},
+    body: { phone: phoneNo, message: msg, priority: "normal" },
     json: true,
   };
 
-
-  const result = await request (options);
+  const result = await request(options);
   //debugger;
   //console.log(result);
   /* await request(options, function (error, response, body) {
@@ -96,5 +107,4 @@ async function sendWhatsAppMessage(phoneNo, msg) {
 
     console.log(body);
   }); */
- 
 }
