@@ -60,6 +60,7 @@ const VotingMemberCard = ({ data, admin, serverUrl, electionYear }) => {
               {data.firstName} {data.lastName}
             </p>
             <p className="text-sm"> {data.email}</p>
+            <p className="text-sm"> {data.phoneNumber}</p>
           </div>{" "}
         </div>{" "}
         <hr className="mb-4" />
